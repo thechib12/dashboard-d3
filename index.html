@@ -51,7 +51,8 @@
 		function onloadcall(){
 			getData();
 		}
-		
+
+		//haal de data uit de json file
 		function getData(){
 			d3.json("data.json", function(error, json){
 				studentList = json;
@@ -59,6 +60,8 @@
 			})
 		}
 
+
+		//zet de data om in een leesbare structuur voor de radarchart
 		function getRadar(name){
 			var studentval = getObj(name);
 			var axes1 = [];
@@ -86,7 +89,7 @@
 
 		}
 		
-
+		//vul de dropdown menu 
 		function fillDropdown(){
 
 			var drop = document.getElementById('studentdropdown');
@@ -101,6 +104,7 @@
 
 		}
 
+		//haal de student uit de "database"
 		function getObj(Name){
 
 			for(var i = 0; i <studentList.length; i++){
@@ -110,6 +114,7 @@
 			}
 		}
 
+		
 		function clickhandler(){
 			var name = document.getElementById("studentdropdown").value
 			renderBarchart(name);
