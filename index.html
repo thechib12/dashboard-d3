@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Student Dashboard</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel = "stylesheet" type = "text/css" href="css/styles.css"/>
+	<link rel = "stylesheet" type="text/css" href="css/radar-chart.css">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+	<script src="js/radar-chart.js"></script
+
+</head>
+
+<style type="text/css">
+	
+	#studentdropdown{
+		
+	}
+
+	.dropdown{
+		width:80%;
+		float:left;
+
+	}
+
+	.btndrop{
+		
+
+		float:left;
+	}
+
+	.rowmargin{
+		margin-bottom: 20px;
+		margin-top: 20px;
+
+	}
+</style>
+<body onload = "onloadcall()">	
+
+	<script type="text/javascript">
+
+		var data = [];
+	
+		var studentList;
+		function onloadcall(){
+			getData();
+		}
+		
+		function getData(){
+			d3.json("data.json", function(error, json){
+				studentList = json;
+				fillDropdown();
+			})
+		}
+
+		function getRadar(name){
+			var studentval = getObj(name);
+			var axes1 = [];
+			for( var key in studentval) {
+				var temp = {axis: key, value: studentval[key]};
+				axes1.push(temp);
+			}
+			
+			var student = {
+				className: name,
+				axes: axes1
+			}
+			
+			data = [student];
+		}
+
+
+		function drawRadar(){
+			d3.select("svg").remove();
+			var chart = RadarChart.chart();
+			var svg = d3.select('#radar').append('svg')
+  						.attr('width', 600)
+  						.attr('height', 800);
+						svg.append('g').classed('focus', 1).datum(data).call(chart);
+
+		}
+		
+
+		function fillDropdown(){
+
+			var drop = document.getElementById('studentdropdown');
+
+			for(var i = 0; i<studentList.length; i++){
+				var opt = document.createElement("option");
+				opt.innerHTML = studentList[i].name;
+				opt.value = studentList[i].name;
+
+				drop.appendChild(opt);
+			}
+
+		}
+
+		function getObj(Name){
+
+			for(var i = 0; i <studentList.length; i++){
+				if(studentList[i].name == Name){
+					return studentList[i].values;
+				}
+			}
+		}
+
+		function clickhandler(){
+			var name = document.getElementById("studentdropdown").value
+			renderBarchart(name);
+			getRadar(name);
+			drawRadar();
+			return false;
+		}
+
+
+		function renderBarchart(name){
+			
+			var pData = getObj(name);
+
+			var lValues = [pData.length];
+			var lNames  = [pData.length];
+			var i = 0;
+			for (var key in pData) { //elke key in cijfer lijst
+				lValues[i]  = pData[key]; //cijfer bij elke key
+				lNames[i] = key;  //subj naam
+				i++;
+			}
+
+			//Create elements for each data object
+			d3.select("#chart").selectAll("div.h-bar")
+			.data(lValues)
+			.enter()
+			.append("div")
+			.attr("class", "h-bar")
+			.append("span");
+
+			//delete elements not associated with data element
+			d3.select("#chart").selectAll("div.h-bar")
+			.data(lValues)
+			.exit().remove();
+
+
+			d3.select("#chart").selectAll("div.h-bar") 
+			.data(lValues)
+			.attr("class", "h-bar")
+			.style("width", function (d) {
+				return ( d * 50) + "px";
+			}
+
+			)
+			.select("span")
+			.text(function (d, i ) {
+				return lNames[i] + " " +  d;
+			});
+
+		}
+
+
+
+
+
+	</script>
+
+
+
+	<div class="container">
+		<h1 i align="center" > Student Dashboard </h1>
+
+		
+		
+		<div class = "row rowmargin">
+		<div class = "col-md-4">
+		</div>
+		<div class = "col-md-4">
+			<form role="form">
+	
+			<select class="form-control dropdown " id = "studentdropdown">
+				
+			</select>
+
+			<button onclick="return clickhandler();" type="submit" class="btn btn-default btndrop">Search</button>
+		
+
+		
+		</form>
+		</div>
+		<div class = "col-md-4">
+		</div>
+
+		
+
+		</div>
+
+	
+		<div class = "row"> 
+
+			<div class = "col-md-6" id= "chart">
+
+
+
+
+
+
+			</div>
+
+			<div class = "col-md-6" id="radar" >
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- page content -->
+</body>
+</html>
